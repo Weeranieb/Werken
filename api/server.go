@@ -2,34 +2,41 @@ package api
 
 import (
 	"Werken/handler"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type Server struct {
-	router *gin.Engine
+var (
+	app *gin.Engine
+)
+
+func registerRouter(r *gin.RouterGroup) {
+	r.GET("/realtime", handler.GetRealTime())
+	r.GET("/auth", handler.GetAuth())
+	r.GET("/user", handler.GetUser())
+	r.GET("/jobs", handler.GetJobs())
+	r.GET("/finder", handler.GetFinder())
+	r.GET("/wallet", handler.GetWallet())
+
+	r.POST("/realtime", handler.PostRealTime())
+	r.POST("/auth", handler.PostAuth())
+	r.POST("/user", handler.PostUser())
+	r.POST("/jobs", handler.PostJobs())
+	r.POST("/wallet", handler.PostWallet())
 }
 
-func NewServer() *Server {
-	server := Server{}
+func NewServer() *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/realtime", handler.GetRealTime())
-	router.GET("/auth", handler.GetAuth())
-	router.GET("/user", handler.GetUser())
-	router.GET("/jobs", handler.GetJobs())
-	router.GET("/finder", handler.GetFinder())
-	router.GET("/wallet", handler.GetWallet())
+	r := router.Group("/api")
 
-	router.POST("/realtime", handler.PostRealTime())
-	router.POST("/auth", handler.PostAuth())
-	router.POST("/user", handler.PostUser())
-	router.POST("/jobs", handler.PostJobs())
-	router.POST("/wallet", handler.PostWallet())
-	server.router = router
-	return &server
+	registerRouter(r)
+
+	return router
 }
 
-func (server *Server) Start(address string) error {
-	return server.router.Run(address)
+// entrypoint
+func Handler(w http.ResponseWriter, r *http.Request) {
+	app.ServeHTTP(w, r)
 }
